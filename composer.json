@@ -1,0 +1,27 @@
+{
+    "name": "sebo/hidepost4guest",
+    "type": "phpbb-extension",
+    "description": "Hide random posts for guest.",
+    "homepage": "https://www.fiatpandaclub.org",
+    "version": "1.1.2",
+    "time": "2025-02-28",
+    "license": "GPL-2.0-only",
+    "authors": [
+        {
+            "name": "sebo",
+            "email": "info@fiatpandaclub.org",
+            "homepage": "https://www.fiatpandaclub.org",
+            "role": "https://www.phpbb.com/community/memberlist.php?mode=viewprofile&u=2233051"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.3",
+        "composer/installers": "~1.0"
+    },
+    "extra": {
+        "display-name": "Hide Posts 4 Guest",
+        "soft-require": {
+            "phpbb/phpbb": ">=3.3.0,<4.0.0@dev"
+        }
+    }
+}

@@ -1,0 +1,95 @@
+{% include 'overall_header.html' %}
+
+<h1>{{ lang('ACP_HIDEPOST4GUEST_TITLE') }}</h1>
+
+{% if S_ERROR %}
+	<div class="errorbox">
+		<h3>{{ lang('WARNING') }}</h3>
+		<p>{{ ERROR_MSG }}</p>
+	</div>
+{% endif %}
+
+<form id="sebo_hidepost4guest_acp" name="sebo_hidepost4guest_acp" method="post" action="{{ U_ACTION }}">
+
+	<fieldset>
+	<legend>{{ lang('PP_ME') }}</legend>
+		<dl>
+			<dt>
+			{{ lang('PP_ME_EXT') }}
+			</dt>
+			<dd><img src="../ext/sebo/hidepost4guest/adm/style/wink_beer.png" width="32px" height="32px"> <a href="https://www.paypal.com/donate/?hosted_button_id=GS3T9MFDJJGT4" target="_blank" rel="noreferrer noopener"><img src="https://www.paypalobjects.com/webstatic/en_US/i/btn/png/silver-pill-paypal-26px.png" alt="{{ lang('PP_ME_EXT_ALT') }}"></a></dd>
+		</dl>
+	</fieldset>
+	
+	<fieldset>
+		{{ lang('ACP_HIDEPOST4GUEST_EXPLAIN') }}
+	</fieldset>
+	
+	<fieldset>
+		<legend>{{ lang('ACP_VIEWALERT_TITLE') }}</legend>
+		<dl>
+			<dt><label for="view_alert">{{ lang('ACP_HIDEPOST4GUEST_VIEW_ALERT') ~ lang('COLON') }}</label></dt>
+			<dd><label><input type="radio" class="radio" name="view_alert" value="1" checked="checked" /> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="view_alert" value="0" /> {{ lang('NO') }}</label></dd>
+		</dl>
+	</fieldset>
+
+	<fieldset>
+			<legend>{L_LOOK_UP_FORUM}</legend>
+			<p>{L_LOOK_UP_FORUMS_EXPLAIN}</p>
+				<dl>
+					<dt><label for="forum_id">{L_LOOK_UP_FORUM}{L_COLON}</label></dt>
+					<dd><strong>{{ lang('LEGEND') }}</strong><br>({{ lang('LEGEND_TITLE') }})<br>&#8226; FP: {{ lang('FPVIEW') }} <br>&#8226; ALERT: {{ lang('ALERT') }}
+						<select name="forum_id[]" id="forum_id" multiple="multiple" size="10">
+							{% for forum in FORUMS_LIST %}
+								{% set option_value = forum.forum_id %}
+								{% if forum.parent_id != 0 %}
+									{% set prefix = '&nbsp; &nbsp;' %}
+									{% set option_value = forum.forum_id %}
+								{% else %}
+									{% set prefix = '' %}
+									{% set option_value = forum.forum_id %}
+								{% endif %}
+								<option value="{{ option_value }}" {% if forum.forum_type != 1 %}disabled{% endif %}  title="{{ forum.forum_name }} - &#10;{% if forum.perc != null %}{{ lang('PERC_EXPLAIN_TITLE') }} {{ forum.perc }}%, &#10;{{ lang('FPVIEW') }}: {% if forum.first == 'Y' %}{{ lang('YES') }}{% else %}{{ lang('NO') }}{% endif %}, &#10;{{ lang('ALERT') }}: {% if forum.alert == 'Y' %}{{ lang('YES') }}{% else %}{{ lang('NO') }}{% endif %}{% endif %}">{{ prefix ~ forum.forum_name }}{% if forum.perc != null %} &emsp; &emsp; &rarr; {{ forum.perc }}%, FP: {{ forum.first }}, ALERT: {{ forum.alert }}{% endif %}</option>
+							{% endfor %}
+						</select>		
+					</dd>
+					<dd>
+					<label for="all_forums">
+						<input type="checkbox" class="radio" name="all_forums" id="all_forums" value="1" /> {L_ALL_FORUMS}
+					</label>
+					</dd>
+				</dl>
+	</fieldset>
+	
+	<fieldset>
+		<legend>{{ lang('ACP_HIDE_1_POST') }}</legend>
+		<dl>
+			<dt><label for="view_alert">{{ lang('ACP_HIDE_1_POST_EXPLAIN') ~ lang('COLON') }}</label></dt>
+			<dd><label><input type="radio" class="radio" name="view_first" value="1" /> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="view_first" value="0" checked="checked" /> {{ lang('NO') }}</label></dd>
+		</dl>
+	</fieldset>
+	
+	<fieldset>
+		<legend>{{ lang('LOOK_UP_PERC') }}</legend>
+		<p>{{ lang('LOOK_UP_PERC_EXPLAIN') }}</p>
+	<dl>
+		<dt><label for="forum">{{ lang('LOOK_UP_PERC') }}{L_COLON}</label></dt>
+		<dd>			    
+			<input type="number" name="percent" min="0" max="100" value="75"> %
+		</dd>
+	</dl>
+	</fieldset>
+
+
+
+	<fieldset class="submit-buttons">
+		<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />&nbsp;
+		<input class="button2" type="submit" id="preview" name="preview" value="{{ lang('PREVIEW') }}" />
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+
+</form>
+
+{% include 'overall_footer.html' %}

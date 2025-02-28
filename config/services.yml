@@ -1,0 +1,25 @@
+imports:
+    - { resource: parameters.yml }
+
+services:
+    sebo.hidepost4guest.controller.acp:
+        class: sebo\hidepost4guest\controller\acp_controller
+        arguments:
+            - '@dbal.conn'
+            - '@language'
+            - '@log'
+            - '@request'
+            - '@template'
+            - '@user'
+            - '%sebo.hidepost4guest.tables.hp4g_settings%'
+
+    sebo.hidepost4guest.listener:
+        class: sebo\hidepost4guest\event\main_listener
+        arguments:
+            - '@language'
+            - '@dbal.conn'
+            - '@user'
+            - '%sebo.hidepost4guest.tables.hp4g_settings%'
+            - '@template'
+        tags:
+            - { name: event.listener }

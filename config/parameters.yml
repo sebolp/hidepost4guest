@@ -1,0 +1,2 @@
+parameters:
+    sebo.hidepost4guest.tables.hp4g_settings: '%core.table_prefix%hp4g_settings'
