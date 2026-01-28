@@ -1,0 +1,12 @@
+{% INCLUDECSS '@sebo_hidepost4guest/hide4g.css' %}
+
+{% if not S_REGISTERED_USER and FORUM_ID_VIEWALERT == 1 %}
+	<div class="alert-link">
+		<div class="inner_alert">
+			<i class="fa fa-exclamation-triangle fa-2x" aria-hidden="true" style="color: orange;"></i>
+		</div>
+		<div class="inner_alert_explain">
+			{{ lang('ALERT_HIDE') }}
+		</div>
+	</div>
+{% endif %}

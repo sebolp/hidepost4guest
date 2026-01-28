@@ -1,0 +1,22 @@
+services:
+    sebo.hidepost4guest.controller.acp:
+        class: sebo\hidepost4guest\controller\acp_controller
+        arguments:
+            - '@dbal.conn'
+            - '@language'
+            - '@log'
+            - '@request'
+            - '@template'
+            - '@user'
+            - '%core.table_prefix%'
+
+    sebo.hidepost4guest.listener:
+        class: sebo\hidepost4guest\event\main_listener
+        arguments:
+            - '@language'
+            - '@dbal.conn'
+            - '@user'
+            - '%core.table_prefix%'
+            - '@template'
+        tags:
+            - { name: event.listener }

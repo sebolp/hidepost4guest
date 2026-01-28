@@ -1,0 +1,147 @@
+{% include 'overall_header.html' %}
+{% INCLUDECSS '@sebo_hidepost4guest/acp_hp4g.css' %}
+
+<a id="maincontent"></a>
+
+<h1>{{ lang('ACP_HIDEPOST4GUEST_TITLE') }}</h1>
+
+{% if S_ERROR %}
+    <div class="errorbox">
+        <h3>{{ lang('WARNING') }}</h3>
+        <p>{{ ERROR_MSG }}</p>
+    </div>
+{% endif %}
+
+<form id="sebo_hidepost4guest_acp" name="sebo_hidepost4guest_acp" method="post" action="{{ U_ACTION }}">
+
+    <fieldset>
+        <legend>{{ lang('PP_ME') }}</legend>
+        <dl>
+            <dt>
+                <label>{{ lang('PP_ME_EXT') }}</label>
+            </dt>
+            <dd>
+                <img src="../ext/sebo/hidepost4guest/adm/style/wink_beer.png" width="32" height="32" alt="">
+                <a href="{{ LINK_DONATE }}" target="_blank" rel="noreferrer noopener">
+                    <img src="https://www.paypalobjects.com/webstatic/en_US/i/btn/png/silver-pill-paypal-26px.png" alt="{{ lang('PP_ME_EXT_ALT') }}">
+                </a>
+            </dd>
+        </dl>
+    </fieldset>
+
+    <fieldset>
+        <p>{{ lang('ACP_HIDEPOST4GUEST_EXPLAIN') }}</p>
+    </fieldset>
+
+	<fieldset>
+        <legend>{{ lang('HP4G_RESET_TITLE') }}</legend>
+        <dl>
+            <dt>
+                <label>{{ lang('HP4G_RESET_LABEL') }}</label>
+                <br /><span>{{ lang('HP4G_RESET_EXPLAIN') }}</span>
+            </dt>
+            <dd>
+                <a class="btn btn-danger" style="background: #d9534f; color: #fff; padding: 5px 10px; text-decoration: none; border-radius: 3px;" href="{{ U_RESET }}" onclick="return confirm('{{ L_RESET_CONFIRM }}');">
+                    <i class="fa fa-trash-o fa-lg"></i> {{ lang('HP4G_RESET_BUTTON') }}
+                </a>
+            </dd>
+        </dl>
+    </fieldset>
+
+    <fieldset>
+		<legend>1 - {{ lang('LOOK_UP_FORUM') }}</legend>
+		<p>{{ lang('LOOK_UP_FORUMS_EXPLAIN') }}</p>
+
+		<dl>
+			<dt><label>{{ lang('SELECT_FORUM') ~ lang('COLON') }}</label></dt>
+			<dd>
+				<div class="forum-list-scroll">
+					{% for forum in FORUMS_LIST %}
+						<div class="forum-row {{ (forum.parent_id != 0) ? 'sub-forum' : 'main-forum' }}">
+
+							<label {% if not forum.guest_visible %}style="opacity: 0.6; cursor: not-allowed;" title="{{ lang('HIDDEN_TO_GUEST') }}"{% endif %}>
+
+								<input type="checkbox" name="forum_id[]" value="{{ forum.forum_id }}"
+									{% if forum.forum_type != 1 or not forum.guest_visible %}disabled{% endif %}>
+
+								{% if forum.forum_type != 1 %}
+									<strong style="color: #666;">{{ forum.forum_name }}</strong>
+								{% else %}
+									<span {% if not forum.guest_visible %}style="color: #999;"{% endif %}>
+										{{ forum.forum_name }}
+									</span>
+								{% endif %}
+
+								{% if not forum.guest_visible %}
+									<i class="fa fa-eye-slash" aria-hidden="true" style="color: #d9534f; margin-left: 5px;"></i>
+								{% endif %}
+
+								{% if forum.perc != null %}
+									<i class="fa fa-cog" style="color: #2c3e50; float: right; margin-top: 3px;" title="{{ lang('SETTINGS_EXIST') }}"></i>
+								{% endif %}
+							</label>
+
+							{% if forum.perc != null %}
+								<div class="settings-bubble">
+									<strong style="color: #4cff00; border-bottom: 1px solid #555; display:block; margin-bottom:5px;">
+										{{ lang('CURRENT_SETTINGS') }}
+									</strong>
+									{{ lang('LOOK_UP_PERC') }}: <strong>{{ forum.perc }}%</strong><br>
+									{{ lang('FPVIEW') }}: <strong>{% if forum.first == 'Y' %}{{ lang('YES') }}{% else %}{{ lang('NO') }}{% endif %}</strong><br>
+									{{ lang('ALERT') }}: <strong>{% if forum.alert == 'Y' %}{{ lang('YES') }}{% else %}{{ lang('NO') }}{% endif %}</strong>
+								</div>
+							{% endif %}
+						</div>
+					{% endfor %}
+				</div>
+			</dd>
+			<dd>
+				<label>
+					<input type="checkbox" class="radio" name="all_forums" id="all_forums" value="1" /> {{ lang('ALL_FORUMS') }}
+				</label>
+			</dd>
+		</dl>
+	</fieldset>
+
+    <fieldset>
+        <legend>2 - {{ lang('ACP_VIEWALERT_TITLE') }}</legend>
+        <dl>
+            <dt><label for="view_alert">{{ lang('ACP_HIDEPOST4GUEST_VIEW_ALERT') }}</label></dt>
+            <dd>
+                <label><input type="radio" class="radio" name="view_alert" id="view_alert" value="1" checked="checked" /> {{ lang('YES') }}</label>
+                <label><input type="radio" class="radio" name="view_alert" value="0" /> {{ lang('NO') }}</label>
+            </dd>
+        </dl>
+    </fieldset>
+
+    <fieldset>
+        <legend>3 - {{ lang('ACP_HIDE_1_POST') }}</legend>
+        <dl>
+            <dt><label for="view_first">{{ lang('ACP_HIDE_1_POST_EXPLAIN') }}</label></dt>
+            <dd>
+                <label><input type="radio" class="radio" name="view_first" id="view_first" value="1" /> {{ lang('YES') }}</label>
+                <label><input type="radio" class="radio" name="view_first" value="0" checked="checked" /> {{ lang('NO') }}</label>
+            </dd>
+        </dl>
+    </fieldset>
+
+    <fieldset>
+        <legend>4 - {{ lang('LOOK_UP_PERC') }}</legend>
+        <p>{{ lang('LOOK_UP_PERC_EXPLAIN') }}</p>
+        <dl>
+            <dt><label for="percent">{{ lang('LOOK_UP_PERC') ~ lang('COLON') }}</label></dt>
+            <dd>
+                <input type="number" name="percent" id="percent" min="0" max="100" value="75"> %
+            </dd>
+        </dl>
+    </fieldset>
+
+    <fieldset class="submit-buttons">
+        <input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" />
+        {{ S_FORM_TOKEN }}
+    </fieldset>
+
+</form>
+
+{% INCLUDEJS '@sebo_hidepost4guest/acp_selectall.js' %}
+{% include 'overall_footer.html' %}
