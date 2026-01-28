@@ -100,7 +100,7 @@ class main_listener implements EventSubscriberInterface
 		// This ensures the queue is NOT reset for every post on the page
 		static $decision_queue = [];
 
-		// 1. PERFORMANCE OPTIMIZATION (Load settings once)
+		// Load settings once
 		if ($this->settings_cache === null)
 		{
 			$this->settings_cache = [];
@@ -135,12 +135,12 @@ class main_listener implements EventSubscriberInterface
 			$forum_id = (int) $event['topic_data']['forum_id'];
 		}
 		// Fallback: Row data (Validator suggestion)
-		elseif (isset($event['row']['forum_id']))
+		else if (isset($event['row']['forum_id']))
 		{
 			$forum_id = (int) $event['row']['forum_id'];
 		}
 		// Last resort: Event root
-		elseif (isset($event['forum_id']))
+		else if (isset($event['forum_id']))
 		{
 			$forum_id = (int) $event['forum_id'];
 		}

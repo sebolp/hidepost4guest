@@ -70,43 +70,64 @@ class acp_controller
 
 		$errors = [];
 
-		// Recuperiamo l'azione dalla barra degli indirizzi (GET)
+		// Get the action from the address bar (GET)
 		$action = $this->request->variable('action', '');
 
-		// --- LOGICA RESET (Adattata per link GET) ---
+		// reset db
 		if ($action === 'reset')
 		{
-			// Svuota completamente la tabella
+			// Completely empty the table
 			$sql = 'DELETE FROM ' . $this->hp4g_table;
 			$this->db->sql_query($sql);
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_ACP_HIDEPOST4GUEST_RESET');
 
-			// Ricarica la pagina base (senza action=reset per evitare loop)
+			// Reload the base page (without action=reset to avoid loops)
 			meta_refresh(3, $this->u_action);
 			trigger_error($this->language->lang('HP4G_RESET_SUCCESS') . adm_back_link($this->u_action));
 		}
 
-		// --- START LOGIC: CHECK GUEST PERMISSIONS ---
-		// Vogliamo sapere in quali forum i Guest hanno il permesso 'f_read'
+		// CHECK GUEST PERMISSIONS
+		// We want to know in which forums Guests have the 'f_read' permission
 
-		// 1. Recupera ID del gruppo GUESTS
-		$sql = "SELECT group_id FROM " . GROUPS_TABLE . " WHERE group_name = 'GUESTS'";
+		// 1. Retrieve GUESTS group ID
+		$sql_ary = [
+			'SELECT' => 'group_id',
+			'FROM'   => [
+				GROUPS_TABLE => 'g',
+			],
+			'WHERE'  => "group_name = 'GUESTS'",
+		];
+		$sql = $this->db->sql_build_query('SELECT', $sql_ary);
 		$result = $this->db->sql_query($sql);
 		$guest_group_id = (int) $this->db->sql_fetchfield('group_id');
 		$this->db->sql_freeresult($result);
 
-		// 2. Recupera ID dell'opzione 'f_read'
-		$sql = "SELECT auth_option_id FROM " . ACL_OPTIONS_TABLE . " WHERE auth_option = 'f_read'";
+		// 2. Retrieve 'f_read' option ID
+		$sql_ary = [
+			'SELECT' => 'auth_option_id',
+			'FROM'   => [
+				ACL_OPTIONS_TABLE => 'ao',
+			],
+			'WHERE'  => "auth_option = 'f_read'",
+		];
+		$sql = $this->db->sql_build_query('SELECT', $sql_ary);
 		$result = $this->db->sql_query($sql);
 		$f_read_id = (int) $this->db->sql_fetchfield('auth_option_id');
 		$this->db->sql_freeresult($result);
 
-		// 3. Recupera i Ruoli che hanno 'f_read' attivo (auth_setting = 1)
+		// 3. Retrieve Roles that have 'f_read' active (auth_setting = 1)
 		$f_read_roles = [];
 		if ($f_read_id)
 		{
-			$sql = "SELECT role_id FROM " . ACL_ROLES_DATA_TABLE . " WHERE auth_option_id = $f_read_id AND auth_setting = 1";
+			$sql_ary = [
+				'SELECT' => 'role_id',
+				'FROM'   => [
+					ACL_ROLES_DATA_TABLE => 'ard',
+				],
+				'WHERE'  => 'auth_option_id = ' . $f_read_id . ' AND auth_setting = 1',
+			];
+			$sql = $this->db->sql_build_query('SELECT', $sql_ary);
 			$result = $this->db->sql_query($sql);
 			while ($row = $this->db->sql_fetchrow($result))
 			{
@@ -115,22 +136,29 @@ class acp_controller
 			$this->db->sql_freeresult($result);
 		}
 
-		// 4. Trova i Forum dove il gruppo Guest ha accesso (tramite opzione diretta O tramite ruolo)
+		// 4. Find Forums where the Guest group has access (via direct option OR via role)
 		$guest_visible_forums = [];
 		if ($guest_group_id && $f_read_id)
 		{
-			// Costruiamo la condizione: O ha l'opzione settata a 1, O ha un ruolo che la contiene
-			$sql_where = "group_id = $guest_group_id AND (
-                (auth_option_id = $f_read_id AND auth_setting = 1)";
+			// Build the condition: Either the option is set to 1, OR they have a role that contains it
+			$sql_where = 'group_id = ' . $guest_group_id . ' AND (
+				(auth_option_id = ' . $f_read_id . ' AND auth_setting = 1)';
 
 			if (!empty($f_read_roles))
 			{
 				$roles_str = implode(',', $f_read_roles);
-				$sql_where .= " OR auth_role_id IN ($roles_str)";
+				$sql_where .= ' OR auth_role_id IN (' . $roles_str . ')';
 			}
-			$sql_where .= ")";
+			$sql_where .= ')';
 
-			$sql = "SELECT forum_id FROM " . ACL_GROUPS_TABLE . " WHERE $sql_where";
+			$sql_ary = [
+				'SELECT' => 'forum_id',
+				'FROM'   => [
+					ACL_GROUPS_TABLE => 'ag',
+				],
+				'WHERE'  => $sql_where,
+			];
+			$sql = $this->db->sql_build_query('SELECT', $sql_ary);
 			$result = $this->db->sql_query($sql);
 			while ($row = $this->db->sql_fetchrow($result))
 			{
@@ -138,9 +166,8 @@ class acp_controller
 			}
 			$this->db->sql_freeresult($result);
 		}
-		// --- END LOGIC ---
 
-		// Main Query (La tua query originale)
+		// Main Query
 		$sql_array = [
 			'SELECT'    => 'f.forum_id, f.forum_name, f.parent_id, f.forum_type, s.perc, s.view_alert, s.view_first',
 			'FROM'      => [
@@ -161,23 +188,23 @@ class acp_controller
 		$forums_data = [];
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			// Verifica se questo forum è nella lista dei visibili
+			// Check if this forum is in the visible list
 			$is_visible = in_array($row['forum_id'], $guest_visible_forums);
 
 			$forums_data[] = [
-				'forum_id'   => (int) $row['forum_id'],
-				'forum_name' => $row['forum_name'],
-				'parent_id'  => (int) $row['parent_id'],
-				'forum_type' => (int) $row['forum_type'],
-				'perc'       => isset($row['perc']) ? $row['perc'] : null,
-				'first'      => isset($row['view_first']) ? ($row['view_first'] == 1 ? 'Y' : 'N') : null,
-				'alert'      => isset($row['view_alert']) ? ($row['view_alert'] == 1 ? 'Y' : 'N') : null,
+				'forum_id'      => (int) $row['forum_id'],
+				'forum_name'    => $row['forum_name'],
+				'parent_id'     => (int) $row['parent_id'],
+				'forum_type'    => (int) $row['forum_type'],
+				'perc'          => isset($row['perc']) ? $row['perc'] : null,
+				'first'         => isset($row['view_first']) ? ($row['view_first'] == 1 ? 'Y' : 'N') : null,
+				'alert'         => isset($row['view_alert']) ? ($row['view_alert'] == 1 ? 'Y' : 'N') : null,
 				'guest_visible' => $is_visible,
 			];
 		}
 		$this->db->sql_freeresult($result);
 
-		// reset entire table
+		// Reset entire table
 		if ($this->request->is_set_post('reset'))
 		{
 			if (!check_form_key('sebo_hidepost4guest_acp'))
@@ -187,7 +214,7 @@ class acp_controller
 
 			if (empty($errors))
 			{
-				// prune table
+				// Prune table
 				$sql = 'DELETE FROM ' . $this->hp4g_table;
 				$this->db->sql_query($sql);
 
@@ -221,7 +248,7 @@ class acp_controller
 					{
 						foreach ($forums_data as $f)
 						{
-							if ($f['forum_type'] == 1) // FORUM_POST
+							if ($f['forum_type'] == 1)
 							{
 								$ids_to_process[] = $f['forum_id'];
 							}
@@ -260,11 +287,11 @@ class acp_controller
 		}
 
 		$this->template->assign_vars([
-			'S_ERROR'     => !empty($errors),
-			'ERROR_MSG'   => implode('<br />', $errors),
-			'U_ACTION'    => $this->u_action,
-			'FORUMS_LIST' => $forums_data,
-			'LINK_DONATE' => 'https://www.paypal.com/donate/?hosted_button_id=GS3T9MFDJJGT4',
+			'S_ERROR'         => !empty($errors),
+			'ERROR_MSG'       => implode('<br />', $errors),
+			'U_ACTION'        => $this->u_action,
+			'FORUMS_LIST'     => $forums_data,
+			'LINK_DONATE'     => 'https://www.paypal.com/donate/?hosted_button_id=GS3T9MFDJJGT4',
 			'U_RESET'         => $this->u_action . '&amp;action=reset',
 			'L_RESET_CONFIRM' => $this->language->lang('HP4G_RESET_CONFIRM'),
 		]);

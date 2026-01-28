@@ -44,5 +44,13 @@ $lang = array_merge($lang, [
 	'LOG_ACP_HIDEPOST4GUEST_SETTINGS'		=> '<strong>Impostazioni HidePost4Guest aggiornate</strong>',
 	'ACP_HIDE_1_POST'		=> 'Nascondi il primo messaggio',
 	'ACP_HIDE_1_POST_EXPLAIN'		=> 'Vuoi oscurare anche il primo post del topic?',
+	/* > 1.2 */
 	'CURRENT_SETTINGS'		=> 'Impostazioni correnti:',
+	'HP4G_RESET_TITLE'		=> 'Ripristina impostazioni HidePost4Guest',
+	'HP4G_RESET_LABEL'		=> 'Ripristina tutte le impostazioni di HidePost4Guest',
+	'HP4G_RESET_EXPLAIN'	=> 'Clicca il pulsante per ripristinare tutte le impostazioni di HidePost4Guest (pulizia del database). Questa azione non può essere annullata.',
+	'HP4G_RESET_BUTTON'		=> 'Reset Impostazioni HidePost4Guest',
+	'HP4G_RESET_CONFIRM'	=> 'Sei sicuro di voler ripristinare tutte le impostazioni di HidePost4Guest? Questa azione non può essere annullata.',
+	'HIDDEN_TO_GUEST' 		=> 'Questo forum è già nascosto ai Visitatori',
+	'HP4G_RESET_SUCCESS' 	=> 'Tutte le impostazioni di HidePost4Guest sono state ripristinate con successo.',
 ]);
