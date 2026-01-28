@@ -3,7 +3,7 @@
     "type": "phpbb-extension",
     "description": "Hide random posts for guest.",
     "homepage": "https://www.fiatpandaclub.org",
-    "version": "1.2",
+    "version": "1.2.0",
     "time": "2026-01-28",
     "license": "GPL-2.0-only",
     "authors": [

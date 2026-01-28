@@ -125,7 +125,8 @@ class acp_controller
 				'FROM'   => [
 					ACL_ROLES_DATA_TABLE => 'ard',
 				],
-				'WHERE'  => 'auth_option_id = ' . $f_read_id . ' AND auth_setting = 1',
+				// FIX: Cast esplicito (int) per evitare warning SQL Injection
+				'WHERE'  => 'auth_option_id = ' . (int) $f_read_id . ' AND auth_setting = 1',
 			];
 			$sql = $this->db->sql_build_query('SELECT', $sql_ary);
 			$result = $this->db->sql_query($sql);
@@ -140,14 +141,15 @@ class acp_controller
 		$guest_visible_forums = [];
 		if ($guest_group_id && $f_read_id)
 		{
-			// Build the condition: Either the option is set to 1, OR they have a role that contains it
-			$sql_where = 'group_id = ' . $guest_group_id . ' AND (
-				(auth_option_id = ' . $f_read_id . ' AND auth_setting = 1)';
+			// Build the condition
+			// FIX: Cast esplicito (int) anche qui
+			$sql_where = 'group_id = ' . (int) $guest_group_id . ' AND (
+				(auth_option_id = ' . (int) $f_read_id . ' AND auth_setting = 1)';
 
 			if (!empty($f_read_roles))
 			{
-				$roles_str = implode(',', $f_read_roles);
-				$sql_where .= ' OR auth_role_id IN (' . $roles_str . ')';
+				// FIX: Usa sql_in_set invece di implode manuale (phpBB Standard)
+				$sql_where .= ' OR ' . $this->db->sql_in_set('auth_role_id', $f_read_roles);
 			}
 			$sql_where .= ')';
 
